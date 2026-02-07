@@ -27,7 +27,9 @@ clean:
 	find . -type f -name "*.pyc" -delete
 
 test:
-	pytest packages/
+	pytest packages/core/tests -v
+	pytest packages/utils/tests -v
+	pytest packages/api/tests -v
 
 lint:
 	ruff check packages/

@@ -24,10 +24,10 @@ classifiers = [
 packages = ["packages"]
 
 [tool.pytest.ini_options]
-testpaths = ["packages"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 100
