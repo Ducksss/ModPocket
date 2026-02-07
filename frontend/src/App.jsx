@@ -215,7 +215,7 @@ function App() {
                 {/* Headline */}
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-[1.1] mb-4 animate-fade-up animate-delay-1">
                     Your timetable,<br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-400">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-orange-500">
                         your wallpaper
                     </span>
                 </h1>
