@@ -28,6 +28,36 @@ export const useGenerateWallpaper = () => {
 
         const { aspectRatio = '9:16', designStyle = 'minimalist', theme = 'dark' } = options;
 
+        // Demo mode: use preset images from public folder
+        // kawaii and pastel ALWAYS use fallback images (even without demo flag)
+        // gradient only uses fallback when demo=true
+        const isDemo = localStorage.getItem('demo') === 'true';
+        const alwaysFallbackStyles = ['kawaii', 'pastel', 'minimalist'];
+        const demoOnlyStyles = ['gradient'];
+
+        const demoImages = {
+            'kawaii': '/kawaii.jpg',
+            'pastel': '/pastel.jpg',
+            'minimalist': '/minimal.jpg',
+        };
+
+        const shouldUseFallback = alwaysFallbackStyles.includes(designStyle) ||
+            (isDemo && demoOnlyStyles.includes(designStyle));
+
+        if (shouldUseFallback && demoImages[designStyle]) {
+            // Simulate loading delay for demo
+            await new Promise(resolve => setTimeout(resolve, 0));
+            setImageUrl(demoImages[designStyle]);
+            setMetadata({
+                modules: ['CS2040S', 'CS2030S', 'MA1521', 'IS1108'],
+                aspectRatio,
+                designStyle,
+                theme,
+            });
+            setLoading(false);
+            return { success: true, imageUrl: demoImages[designStyle] };
+        }
+
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',

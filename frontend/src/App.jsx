@@ -232,7 +232,7 @@ function App() {
                         <div className="stat-label">Wallpapers Made</div>
                     </div>
                     <div className="stat-item">
-                        <div className="stat-value flex items-center gap-1"><Zap className="w-4 h-4" /> 3s</div>
+                        <div className="stat-value flex items-center gap-1"><Zap className="w-4 h-4" /> 10s</div>
                         <div className="stat-label">Generation Time</div>
                     </div>
                     <div className="stat-item">
