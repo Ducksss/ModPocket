@@ -1,26 +1,35 @@
 import React, { useState, useCallback } from 'react';
-import { Sparkles, ArrowRight, Link2, Loader2, Download, RotateCcw, ImageIcon, AlertCircle, Github, ChevronDown, Smartphone, Palette, Sun, Moon } from 'lucide-react';
+import { Sparkles, ArrowRight, Link2, Loader2, Download, RotateCcw, ImageIcon, AlertCircle, Github, ChevronDown, Smartphone, Sun, Moon, Zap, Users, Check } from 'lucide-react';
 import { validateNusmodsUrl, extractModules } from './utils/validateNusmodsUrl';
 import { useGenerateWallpaper } from './hooks/useGenerateWallpaper';
 
 // Aspect ratio options
 const ASPECT_RATIOS = [
     { id: 'iphone-14-pro', label: 'iPhone 14/15 Pro', value: '1179x2556' },
-    { id: 'iphone-14-pro-max', label: 'iPhone 14/15 Pro Max', value: '1290x2796' },
+    { id: 'iphone-14-pro-max', label: 'iPhone Pro Max', value: '1290x2796' },
     { id: 'iphone-se', label: 'iPhone SE', value: '750x1334' },
-    { id: 'iphone-14', label: 'iPhone 14/15', value: '1170x2532' },
     { id: 'android-1080p', label: 'Android (1080p)', value: '1080x2400' },
 ];
 
-// Design style options
+// Design style options with preview classes
 const DESIGN_STYLES = [
-    { id: 'minimalist', label: 'Minimalist', description: 'Clean & simple' },
-    { id: 'gradient', label: 'Gradient', description: 'Vibrant colors' },
-    { id: 'neon', label: 'Neon', description: 'Glowing accents' },
-    { id: 'pastel', label: 'Pastel', description: 'Soft tones' },
-    { id: 'glassmorphism', label: 'Glass', description: 'Frosted effect' },
-    { id: 'retro', label: 'Retro', description: 'Vintage vibes' },
+    { id: 'minimalist', label: 'Minimal', description: 'Clean & elegant', preview: 'minimalist' },
+    { id: 'gradient', label: 'Gradient', description: 'Vibrant flow', preview: 'gradient' },
+    { id: 'neon', label: 'Neon', description: 'Cyberpunk glow', preview: 'neon' },
+    { id: 'pastel', label: 'Pastel', description: 'Soft & calm', preview: 'pastel' },
+    { id: 'glassmorphism', label: 'Glass', description: 'Frosted blur', preview: 'glassmorphism' },
+    { id: 'kawaii', label: 'Kawaii', description: 'Cute doodles', preview: 'kawaii' },
+    { id: 'retro', label: 'Retro', description: 'Warm vintage', preview: 'retro' },
 ];
+
+// Floating particles component
+const Particles = () => (
+    <div className="particles">
+        {[...Array(6)].map((_, i) => (
+            <div key={i} className="particle" />
+        ))}
+    </div>
+);
 
 // Custom Select Component
 const Select = ({ value, onChange, options, icon: Icon, label }) => {
@@ -29,37 +38,32 @@ const Select = ({ value, onChange, options, icon: Icon, label }) => {
 
     return (
         <div className="relative">
-            <label className="block text-xs text-[hsl(var(--muted-foreground))] mb-1.5">{label}</label>
+            <label className="block text-xs text-[hsl(var(--muted-foreground))] mb-1.5 font-medium">{label}</label>
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between gap-2 px-3 py-2.5 bg-[hsl(var(--secondary))] border border-[hsl(var(--border))] rounded-lg text-sm text-left hover:border-[hsl(var(--muted-foreground))] transition-colors"
+                className="select-trigger w-full"
             >
                 <div className="flex items-center gap-2">
-                    {Icon && <Icon className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />}
-                    <span>{selectedOption?.label || 'Select...'}</span>
+                    {Icon && <Icon className="w-3.5 h-3.5 text-orange-400" />}
+                    <span className="text-white">{selectedOption?.label}</span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-[hsl(var(--muted-foreground))] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-[hsl(var(--muted-foreground))] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-                    <div className="absolute z-50 w-full mt-1 py-1 bg-[hsl(var(--background))] border border-[hsl(var(--border))] rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                    <div className="select-dropdown">
                         {options.map((option) => (
                             <button
                                 key={option.id}
-                                onClick={() => {
-                                    onChange(option.id);
-                                    setIsOpen(false);
-                                }}
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-[hsl(var(--accent))] flex items-center justify-between ${value === option.id ? 'text-orange-400' : ''
+                                onClick={() => { onChange(option.id); setIsOpen(false); }}
+                                className={`w-full px-3 py-2 text-sm text-left rounded-md transition-colors flex items-center justify-between ${value === option.id ? 'bg-orange-500/10 text-orange-400' : 'hover:bg-white/5'
                                     }`}
                             >
                                 <span>{option.label}</span>
-                                {option.description && (
-                                    <span className="text-xs text-[hsl(var(--muted-foreground))]">{option.description}</span>
-                                )}
+                                {value === option.id && <Check className="w-3.5 h-3.5" />}
                             </button>
                         ))}
                     </div>
@@ -69,38 +73,76 @@ const Select = ({ value, onChange, options, icon: Icon, label }) => {
     );
 };
 
-// Theme Toggle Component
-const ThemeToggle = ({ value, onChange }) => {
-    return (
-        <div>
-            <label className="block text-xs text-[hsl(var(--muted-foreground))] mb-1.5">Theme</label>
-            <div className="flex bg-[hsl(var(--secondary))] border border-[hsl(var(--border))] rounded-lg p-1">
-                <button
-                    type="button"
-                    onClick={() => onChange('light')}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-sm transition-all ${value === 'light'
-                            ? 'bg-white text-black'
-                            : 'text-[hsl(var(--muted-foreground))] hover:text-white'
-                        }`}
-                >
-                    <Sun className="w-4 h-4" />
-                    Light
-                </button>
-                <button
-                    type="button"
-                    onClick={() => onChange('dark')}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-sm transition-all ${value === 'dark'
-                            ? 'bg-[hsl(var(--foreground))] text-[hsl(var(--background))]'
-                            : 'text-[hsl(var(--muted-foreground))] hover:text-white'
-                        }`}
-                >
-                    <Moon className="w-4 h-4" />
-                    Dark
-                </button>
-            </div>
+// Theme Toggle
+const ThemeToggle = ({ value, onChange }) => (
+    <div>
+        <label className="block text-xs text-[hsl(var(--muted-foreground))] mb-1.5 font-medium">Theme</label>
+        <div className="theme-toggle">
+            <button
+                type="button"
+                onClick={() => onChange('light')}
+                className={`theme-btn ${value === 'light' ? 'active' : ''}`}
+            >
+                <Sun className="w-3.5 h-3.5" />
+                Light
+            </button>
+            <button
+                type="button"
+                onClick={() => onChange('dark')}
+                className={`theme-btn ${value === 'dark' ? 'active dark-active' : ''}`}
+            >
+                <Moon className="w-3.5 h-3.5" />
+                Dark
+            </button>
         </div>
-    );
-};
+    </div>
+);
+
+// Style Card Component
+const StyleCard = ({ style, selected, onClick }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className={`style-card ${selected ? 'selected' : ''}`}
+    >
+        <div className={`style-preview ${style.preview}`}>
+            {style.id === 'neon' && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-green-500/30 blur-md" />
+                </div>
+            )}
+        </div>
+        <div className="text-xs font-medium">{style.label}</div>
+        <div className="text-[10px] text-[hsl(var(--muted-foreground))]">{style.description}</div>
+        {selected && (
+            <div className="absolute top-2 right-2">
+                <Check className="w-3.5 h-3.5 text-orange-400" />
+            </div>
+        )}
+    </button>
+);
+
+// Phone Mockup
+const PhoneMockup = ({ imageUrl, loading, placeholder }) => (
+    <div className="phone-container">
+        <div className="phone-frame">
+            <div className="phone-notch" />
+            <div className="phone-screen">
+                {loading ? (
+                    <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+                ) : imageUrl ? (
+                    <img src={imageUrl} alt="Generated wallpaper" className="w-full h-full object-cover" />
+                ) : placeholder ? (
+                    <div className="flex flex-col items-center text-[hsl(var(--muted-foreground))]">
+                        <ImageIcon className="w-8 h-8 mb-2 opacity-40" />
+                        <span className="text-xs opacity-60">Your wallpaper</span>
+                    </div>
+                ) : null}
+            </div>
+            <div className="phone-home-bar" />
+        </div>
+    </div>
+);
 
 function App() {
     const [url, setUrl] = useState('');
@@ -112,9 +154,7 @@ function App() {
 
     const handleUrlChange = useCallback((e) => {
         setUrl(e.target.value);
-        if (validationError) {
-            setValidationError(null);
-        }
+        if (validationError) setValidationError(null);
     }, [validationError]);
 
     const handleGenerate = useCallback(async () => {
@@ -125,13 +165,7 @@ function App() {
         }
         setValidationError(null);
         const modules = extractModules(url);
-        console.log('Generating wallpaper:', {
-            url,
-            modules,
-            aspectRatio: ASPECT_RATIOS.find(a => a.id === aspectRatio)?.value,
-            designStyle,
-            theme,
-        });
+        console.log('Generating:', { url, modules, aspectRatio, designStyle, theme });
         await generate(url, { aspectRatio, designStyle, theme });
     }, [url, aspectRatio, designStyle, theme, generate]);
 
@@ -145,195 +179,184 @@ function App() {
 
     return (
         <div className="min-h-screen relative">
-            {/* Background gradient orb */}
-            <div className="bg-gradient-orb" />
+            {/* Animated Background */}
+            <div className="animated-bg" />
+            <Particles />
 
             {/* Navigation */}
             <nav className="relative z-10 flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-white" />
+                <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                        <Sparkles className="w-4.5 h-4.5 text-white" />
                     </div>
-                    <span className="font-semibold text-lg">ModPocket</span>
+                    <span className="font-bold text-lg tracking-tight">ModPocket</span>
                 </div>
                 <a
-                    href="https://github.com"
+                    href="https://github.com/your-repo"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-secondary"
+                    className="btn-secondary text-sm"
                 >
                     <Github className="w-4 h-4" />
-                    GitHub
+                    Star on GitHub
                 </a>
             </nav>
 
             {/* Hero Section */}
-            <main className="relative z-10 max-w-4xl mx-auto px-6 pt-12 pb-24">
+            <main className="relative z-10 max-w-5xl mx-auto px-6 pt-8 pb-16">
                 {/* Badge */}
-                <div className="flex justify-center mb-6 animate-fade-in">
-                    <div className="badge">
+                <div className="flex justify-center mb-6 animate-fade-up">
+                    <div className="badge shimmer">
                         <span>🎓 Built for NUS Students</span>
-                        <span className="badge-highlight">Try it now →</span>
+                        <span className="badge-highlight">v1.0 Launch →</span>
                     </div>
                 </div>
 
                 {/* Headline */}
-                <h1 className="text-4xl md:text-5xl font-bold text-center leading-tight mb-4 animate-fade-in-delay-1">
-                    Your NUSMods timetable,<br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-500">
-                        on your iPhone
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center leading-[1.1] mb-4 animate-fade-up animate-delay-1">
+                    Your timetable,<br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-400">
+                        your wallpaper
                     </span>
                 </h1>
 
                 {/* Subheadline */}
-                <p className="text-center text-base md:text-lg text-[hsl(var(--muted-foreground))] max-w-xl mx-auto mb-8 animate-fade-in-delay-2">
-                    Transform your NUSMods share link into a beautiful wallpaper.
+                <p className="text-center text-base md:text-lg text-[hsl(var(--muted-foreground))] max-w-md mx-auto mb-6 animate-fade-up animate-delay-2">
+                    Transform your NUSMods link into a stunning iPhone wallpaper in seconds.
                 </p>
 
-                {/* Input Section */}
+                {/* Stats Bar */}
+                <div className="stats-bar mb-8 animate-fade-up animate-delay-2">
+                    <div className="stat-item">
+                        <div className="stat-value">500+</div>
+                        <div className="stat-label">Wallpapers Made</div>
+                    </div>
+                    <div className="stat-item">
+                        <div className="stat-value flex items-center gap-1"><Zap className="w-4 h-4" /> 3s</div>
+                        <div className="stat-label">Generation Time</div>
+                    </div>
+                    <div className="stat-item">
+                        <div className="stat-value flex items-center gap-1"><Users className="w-4 h-4" /> 200+</div>
+                        <div className="stat-label">NUS Students</div>
+                    </div>
+                </div>
+
+                {/* Main Content */}
                 {!imageUrl && (
-                    <div className="max-w-xl mx-auto animate-fade-in-delay-3">
-                        {/* URL Input */}
-                        <div className="relative mb-4">
-                            <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))]" />
-                            <input
-                                type="url"
-                                value={url}
-                                onChange={handleUrlChange}
-                                placeholder="Paste your NUSMods share link..."
-                                disabled={loading}
-                                className="input-shadcn pl-11"
-                            />
-                        </div>
-
-                        {/* Options Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                            <Select
-                                label="Device"
-                                value={aspectRatio}
-                                onChange={setAspectRatio}
-                                options={ASPECT_RATIOS}
-                                icon={Smartphone}
-                            />
-                            <Select
-                                label="Style"
-                                value={designStyle}
-                                onChange={setDesignStyle}
-                                options={DESIGN_STYLES}
-                                icon={Palette}
-                            />
-                            <ThemeToggle value={theme} onChange={setTheme} />
-                        </div>
-
-                        {/* Error */}
-                        {validationError && (
-                            <div className="flex items-center gap-2 text-red-400 text-sm mb-4">
-                                <AlertCircle className="w-4 h-4" />
-                                <span>{validationError}</span>
+                    <div className="flex flex-col lg:flex-row gap-8 items-center animate-fade-up animate-delay-3">
+                        {/* Left: Form */}
+                        <div className="flex-1 w-full max-w-lg">
+                            {/* URL Input */}
+                            <div className="relative mb-5">
+                                <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))] pointer-events-none" />
+                                <input
+                                    type="url"
+                                    value={url}
+                                    onChange={handleUrlChange}
+                                    placeholder="Paste your NUSMods share link..."
+                                    disabled={loading}
+                                    className="input-shadcn"
+                                />
                             </div>
-                        )}
 
-                        {/* API Error */}
-                        {error && (
-                            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
-                                <div className="flex items-center gap-2 text-red-400 text-sm">
-                                    <AlertCircle className="w-4 h-4" />
-                                    <span>{error}</span>
+                            {/* Device & Theme */}
+                            <div className="grid grid-cols-2 gap-3 mb-4">
+                                <Select
+                                    label="Device"
+                                    value={aspectRatio}
+                                    onChange={setAspectRatio}
+                                    options={ASPECT_RATIOS}
+                                    icon={Smartphone}
+                                />
+                                <ThemeToggle value={theme} onChange={setTheme} />
+                            </div>
+
+                            {/* Style Selection */}
+                            <div className="mb-6">
+                                <label className="block text-xs text-[hsl(var(--muted-foreground))] mb-2 font-medium">Choose a Style</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {DESIGN_STYLES.map((style) => (
+                                        <StyleCard
+                                            key={style.id}
+                                            style={style}
+                                            selected={designStyle === style.id}
+                                            onClick={() => setDesignStyle(style.id)}
+                                        />
+                                    ))}
                                 </div>
                             </div>
-                        )}
 
-                        {/* CTA Buttons */}
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                            <button
-                                onClick={handleGenerate}
-                                disabled={!isValidUrl || loading}
-                                className="btn-primary btn-orange w-full sm:w-auto"
-                            >
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        Generating...
-                                    </>
-                                ) : (
-                                    <>
-                                        Get Wallpaper
-                                        <ArrowRight className="w-4 h-4" />
-                                    </>
-                                )}
-                            </button>
-                            <a
-                                href="https://nusmods.com"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn-secondary w-full sm:w-auto"
-                            >
-                                Open NUSMods
-                            </a>
+                            {/* Errors */}
+                            {(validationError || error) && (
+                                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 mb-4">
+                                    <div className="flex items-center gap-2 text-red-400 text-sm">
+                                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                                        <span>{validationError || error}</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* CTA Buttons */}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleGenerate}
+                                    disabled={!isValidUrl || loading}
+                                    className="btn-primary flex-1"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Generating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Generate Wallpaper
+                                            <ArrowRight className="w-4 h-4" />
+                                        </>
+                                    )}
+                                </button>
+                                <a
+                                    href="https://nusmods.com"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn-secondary"
+                                >
+                                    NUSMods
+                                </a>
+                            </div>
+
+                            <p className="text-center text-xs text-[hsl(var(--muted-foreground))] mt-3">
+                                NUSMods → Share/Sync → Copy link → Paste above
+                            </p>
                         </div>
 
-                        {/* Helper text */}
-                        <p className="text-center text-xs text-[hsl(var(--muted-foreground))] mt-3">
-                            Go to NUSMods → Click "Share/Sync" → Copy the link
-                        </p>
+                        {/* Right: Phone Preview */}
+                        <div className="flex-shrink-0">
+                            <PhoneMockup loading={loading} placeholder={!loading} />
+                        </div>
                     </div>
                 )}
 
-                {/* Success/Preview Section */}
+                {/* Success State */}
                 {imageUrl && (
-                    <div className="flex flex-col items-center animate-fade-in">
-                        <div className="phone-frame mb-6">
-                            <div className="phone-notch" />
-                            <div className="phone-screen">
-                                <img src={imageUrl} alt="Generated wallpaper" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="phone-home-bar" />
-                        </div>
+                    <div className="flex flex-col items-center animate-fade-up">
+                        <PhoneMockup imageUrl={imageUrl} />
 
                         {metadata && (
-                            <p className="text-sm text-[hsl(var(--muted-foreground))] mb-6">
+                            <p className="text-sm text-[hsl(var(--muted-foreground))] mt-4 mb-4">
                                 {metadata.modules?.length || 0} modules • {DESIGN_STYLES.find(s => s.id === designStyle)?.label} • {theme === 'dark' ? 'Dark' : 'Light'}
                             </p>
                         )}
 
-                        <div className="flex flex-col sm:flex-row items-center gap-3">
-                            <button onClick={() => window.open(imageUrl, '_blank')} className="btn-primary btn-orange">
+                        <div className="flex gap-3">
+                            <button onClick={() => window.open(imageUrl, '_blank')} className="btn-primary">
                                 <Download className="w-4 h-4" />
                                 Download Wallpaper
                             </button>
                             <button onClick={handleReset} className="btn-secondary">
                                 <RotateCcw className="w-4 h-4" />
-                                Generate Another
+                                Make Another
                             </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Phone Preview Placeholder */}
-                {!imageUrl && !loading && (
-                    <div className="flex justify-center mt-12 animate-fade-in-delay-3">
-                        <div className="phone-frame opacity-50 scale-90">
-                            <div className="phone-notch" />
-                            <div className="phone-screen">
-                                <div className="flex flex-col items-center text-[hsl(var(--muted-foreground))]">
-                                    <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
-                                    <span className="text-xs">Preview</span>
-                                </div>
-                            </div>
-                            <div className="phone-home-bar" />
-                        </div>
-                    </div>
-                )}
-
-                {/* Loading State */}
-                {loading && (
-                    <div className="flex justify-center mt-12">
-                        <div className="phone-frame animate-pulse">
-                            <div className="phone-notch" />
-                            <div className="phone-screen">
-                                <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
-                            </div>
-                            <div className="phone-home-bar" />
                         </div>
                     </div>
                 )}
@@ -341,12 +364,8 @@ function App() {
 
             {/* Footer */}
             <footer className="relative z-10 text-center py-6 text-sm text-[hsl(var(--muted-foreground))]">
-                <p>
-                    Made with 🧡 for NUS Students •{' '}
-                    <a href="https://nusmods.com" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:underline">
-                        NUSMods
-                    </a>
-                </p>
+                Made with 🧡 at NUS • Powered by{' '}
+                <a href="https://nusmods.com" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:underline">NUSMods</a>
             </footer>
         </div>
     );
