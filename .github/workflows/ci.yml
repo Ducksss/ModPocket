@@ -29,14 +29,10 @@ jobs:
         pip install -e packages/api[dev]
 
     - name: Lint with ruff
-      run: |
-        pip install ruff
-        make lint
+      run: make lint
 
     - name: Test with pytest
-      run: |
-        pip install pytest pytest-cov
-        make test
+      run: make test
 
   format-check:
     runs-on: ubuntu-latest
