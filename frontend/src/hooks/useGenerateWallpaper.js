@@ -26,7 +26,7 @@ export const useGenerateWallpaper = () => {
         setImageUrl(null);
         setMetadata(null);
 
-        const { aspectRatio = '9:19.5', designStyle = 'minimalist', theme = 'dark' } = options;
+        const { aspectRatio = '9:16', designStyle = 'minimalist', theme = 'dark' } = options;
 
         try {
             const response = await fetch(API_URL, {

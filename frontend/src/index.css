@@ -445,7 +445,7 @@ body {
 .phone-frame {
   position: relative;
   width: 200px;
-  height: 410px;
+  height: 356px;
   background: linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%);
   border-radius: 36px;
   padding: 6px;
@@ -507,6 +507,34 @@ body {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
   border-radius: 36px;
   pointer-events: none;
+}
+
+/* Larger phone on desktop */
+@media (min-width: 1024px) {
+  .phone-frame {
+    width: 270px;
+    height: 480px;
+    border-radius: 44px;
+  }
+
+  .phone-frame::after {
+    border-radius: 44px;
+  }
+
+  .phone-screen {
+    border-radius: 38px;
+  }
+
+  .phone-notch {
+    width: 90px;
+    height: 24px;
+    border-radius: 12px;
+  }
+
+  .phone-home-bar {
+    width: 110px;
+    height: 5px;
+  }
 }
 
 /* === SELECT DROPDOWN === */
